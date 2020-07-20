@@ -1,0 +1,14 @@
+Package: tester
+Type: Package
+Title: Make Variable and Value Labels
+Version: 0.1.0
+Author: Alex Vinogradov
+Maintainer: Alex Vinogradov <a.g.vinogradov@knu.ua>
+Description: Make Variable and Value Labels.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: haven,
+    jsonlite,
+    readxl
+RoxygenNote: 7.1.0
