@@ -8,7 +8,10 @@
 #' # read_labelled("example.xlsx", "Data View", "Variable View")
 #' @importFrom readxl read_excel
 #' @importFrom jsonlite fromJSON
+#' @importFrom jsonlite toJSON
 #' @importFrom haven labelled
+#' @importFrom tibble as_tibble
+#' @importFrom writexl write_xlsx
 #' @export
 read_labelled <- function(file, data.sheet = 1, vars.sheet = 2, ...) {
   data <- read_excel(file, sheet = data.sheet, ...)
@@ -37,4 +40,29 @@ read_labelled <- function(file, data.sheet = 1, vars.sheet = 2, ...) {
     }
   }
   return(data)
+}
+
+#' Writes Labelled Data into Excel File with Variable and Value Labels
+#' @param x Labelled data frame
+#' @param file Excel workbook with two sheets: for data and dictionary
+#' @examples
+#' # write_labelled(pss, "example.xlsx")
+#' @export
+write_labelled <- function(x, file) {
+  extract_labs <- function(variable) {
+    label <- attr(variable, "label")
+    values <- attr(variable, "labels")
+    c(label = label, values = toJSON(lapply(values, "[")))
+  }
+
+  vars <- as_tibble(
+    x = t(data.frame(lapply(x, extract_labs))),
+    rownames = "variable"
+  )
+
+  write_xlsx(
+    list("Data View" = x, "Variable View" = vars),
+    path = file
+  )
+
 }
