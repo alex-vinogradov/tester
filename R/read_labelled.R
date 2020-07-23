@@ -35,6 +35,8 @@ read_labelled <- function(file, data.sheet = 1, vars.sheet = 2, ...) {
       if (!is.na(values)) values <- unlist(fromJSON(values)) else values <- NULL
       data[[var]] <- labelled(data[[var]], values, varlab)
       attr(data[[var]], "format.spss") <- "F8.0"
+      miss <- vars[vars$variable == var, "missing", TRUE]
+      attr(data[[var]], "na_values") <- fromJSON(miss)
     } else {
       cat("Variable does not exist:", var, "\n")
     }
@@ -65,4 +67,31 @@ write_labelled <- function(x, file) {
     path = file
   )
 
+}
+
+#' Recodes specified values to NA, also removes their labels
+#' @param x Variable which values are to be recoded into NA
+#' @param values Vector of values to recode
+#' @examples
+#' var <- c(1,1,2,2,2,7,8,9,0)
+#' zap_values(var, 7:9)
+#' zap_values(var, c(1,2,3))
+#' @export
+zap_values <- function(x, values) {
+  x[x %in% values] <- NA
+  l <- attr(x, "labels")
+  attr(x, "labels") <- l[!l %in% values]
+  return(x)
+}
+
+#' Recodes user missing values to NA, and removes their labels
+#' @param x Variable which missing values will be recoded into NA
+#' @examples
+#' var <- c(1,1,2,2,2,7,8,9,0)
+#' attr(var, "na_values") <- c(7,8,9)
+#' zap_na(var)
+#' @export
+zap_na <- function(x) {
+  values <- attr(x, "na_values")
+  zap_values(x, values)
 }
