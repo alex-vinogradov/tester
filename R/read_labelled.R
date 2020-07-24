@@ -36,7 +36,8 @@ read_labelled <- function(file, data.sheet = 1, vars.sheet = 2, ...) {
       data[[var]] <- labelled(data[[var]], values, varlab)
       attr(data[[var]], "format.spss") <- "F8.0"
       miss <- vars[vars$variable == var, "missing", TRUE]
-      attr(data[[var]], "na_values") <- fromJSON(miss)
+      if (!is.na(miss)) miss <- fromJSON(miss) else miss <- NULL
+      attr(data[[var]], "na_values") <- miss
     } else {
       cat("Variable does not exist:", var, "\n")
     }
@@ -54,11 +55,12 @@ write_labelled <- function(x, file) {
   extract_labs <- function(variable) {
     label <- attr(variable, "label")
     values <- attr(variable, "labels")
-    missing <- attr(variable, "na_values")
+    miss <- attr(variable, "na_values")
+    if (is.null(miss)) miss <- NA else miss <- toJSON(miss) ## "[]"
     c(
       label = label,
       values = toJSON(lapply(values, "[")),
-      missing = toJSON(missing)
+      missing = miss
     )
   }
 
