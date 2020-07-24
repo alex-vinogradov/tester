@@ -54,7 +54,12 @@ write_labelled <- function(x, file) {
   extract_labs <- function(variable) {
     label <- attr(variable, "label")
     values <- attr(variable, "labels")
-    c(label = label, values = toJSON(lapply(values, "[")))
+    missing <- attr(variable, "na_values")
+    c(
+      label = label,
+      values = toJSON(lapply(values, "[")),
+      missing = toJSON(missing)
+    )
   }
 
   vars <- as_tibble(
